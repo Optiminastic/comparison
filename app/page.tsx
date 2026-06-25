@@ -3,12 +3,15 @@ import TopNav from "@/app/components/TopNav";
 import ComparisonCard from "@/app/components/ComparisonCard";
 import Newsletter from "@/app/components/Newsletter";
 import SiteFooter from "@/app/components/SiteFooter";
+import LatestFromBlog from "@/app/components/LatestFromBlog";
 import {
   CATEGORY_META,
   categorySlug,
   getAllComparisons,
   getFeatured,
 } from "@/app/lib/comparisons";
+
+export const revalidate = 300;
 
 export default function Home() {
   const featured = getFeatured(2);
@@ -20,6 +23,7 @@ export default function Home() {
       <TopNav />
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-5 sm:px-8">
+        <LatestFromBlog />
         {/* Blog hero */}
         <section id="blog" className="pt-10 sm:pt-14">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
