@@ -28,9 +28,6 @@ export default function ComparisonCard({
         </div>
 
         <div className={isFeatured ? "mt-5" : "mt-3"}>
-          <div className="eyebrow text-ink-faint">
-            {comparison.category}
-          </div>
           <h3
             className={`font-display mt-2 font-semibold leading-[1.12] tracking-tight text-ink transition-colors group-hover:text-accent ${
               isFeatured

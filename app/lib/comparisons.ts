@@ -1,6 +1,6 @@
 // Data layer for Versus — the side-by-side comparison journal.
-// Single source of truth for comparisons + categories. Presentation
-// components depend on these types, never the other way around.
+// Single source of truth for comparison blog posts. Presentation components
+// depend on these types, never the other way around.
 
 export type Category =
   | "Automotive"
@@ -31,6 +31,7 @@ export interface Comparison {
   slug: string;
   /** e.g. "BMW vs Audi". */
   title: string;
+  /** Kept only for the generative cover art theming — not shown as navigation. */
   category: Category;
   excerpt: string;
   /** ISO date string (server-stable, no client clock). */
@@ -44,38 +45,6 @@ export interface Comparison {
   dimensions: Dimension[];
   verdict: string;
   featured?: boolean;
-}
-
-export interface CategoryMeta {
-  name: Category;
-  icon: string;
-  blurb: string;
-}
-
-export const CATEGORY_META: CategoryMeta[] = [
-  { name: "Automotive", icon: "🚗", blurb: "Cars, head to head." },
-  { name: "AI Tools", icon: "🤖", blurb: "The models and agents." },
-  { name: "Careers", icon: "💼", blurb: "Roles and paths, compared." },
-  { name: "Software & Web", icon: "💻", blurb: "Stacks and platforms." },
-  { name: "Gadgets", icon: "📱", blurb: "Devices worth the debate." },
-];
-
-export const CATEGORIES: Category[] = CATEGORY_META.map((c) => c.name);
-
-export function categoryIcon(category: Category): string {
-  return CATEGORY_META.find((c) => c.name === category)?.icon ?? "📌";
-}
-
-export function categorySlug(category: Category): string {
-  return category
-    .toLowerCase()
-    .replace(/&/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-export function categoryFromSlug(slug: string): Category | undefined {
-  return CATEGORIES.find((c) => categorySlug(c) === slug.toLowerCase());
 }
 
 const COMPARISONS: Comparison[] = [
@@ -265,49 +234,6 @@ const COMPARISONS: Comparison[] = [
       "Choose ChatGPT as a flexible all-rounder with the deepest ecosystem. Choose Claude when the work is long-form, nuanced, or writing-heavy. Plenty of professionals pay for both and switch by task.",
   },
   {
-    slug: "midjourney-vs-dalle",
-    title: "Midjourney vs DALL·E",
-    category: "AI Tools",
-    excerpt:
-      "Painterly, opinionated artistry versus precise, promptable control. Which image generator suits your workflow?",
-    date: "2026-05-18",
-    readingTime: 7,
-    author: "Lena Voss",
-    authorRole: "Design & Creative",
-    intro: [
-      "Both tools turn text into images, but they pull in different aesthetic directions. Midjourney has a strong house style; DALL·E does what you literally ask.",
-    ],
-    a: {
-      name: "Midjourney",
-      tagline: "Opinionated, painterly beauty.",
-      pros: [
-        "Gorgeous default aesthetic out of the box",
-        "Exceptional with lighting, texture, and mood",
-        "Active community and style references",
-      ],
-      bestFor: "Concept art, moodboards, and striking hero imagery.",
-    },
-    b: {
-      name: "DALL·E",
-      tagline: "Literal, controllable generation.",
-      pros: [
-        "Follows precise prompts and instructions closely",
-        "Strong text rendering and editing/inpainting",
-        "Convenient inside an existing assistant workflow",
-      ],
-      bestFor: "Exact compositions, edits, and images with on-image text.",
-    },
-    dimensions: [
-      { aspect: "Default aesthetic", a: "Striking, stylized", b: "Neutral, literal", edge: "a" },
-      { aspect: "Prompt accuracy", a: "Interpretive", b: "Very literal", edge: "b" },
-      { aspect: "Editing/inpainting", a: "Improving", b: "Strong", edge: "b" },
-      { aspect: "Text in images", a: "Weaker", b: "Stronger", edge: "b" },
-      { aspect: "Wow factor", a: "Very high", b: "High", edge: "a" },
-    ],
-    verdict:
-      "Use Midjourney when you want beauty and mood and will curate from many options. Use DALL·E when you need control, edits, or images that say exactly what you specified.",
-  },
-  {
     slug: "software-engineer-vs-software-developer",
     title: "Software Engineer vs Software Developer",
     category: "Careers",
@@ -353,92 +279,6 @@ const COMPARISONS: Comparison[] = [
     ],
     verdict:
       "The titles overlap, but 'engineer' usually signals broader ownership of systems, scale, and trade-offs, while 'developer' signals hands-on feature building. Judge the job by its actual responsibilities, not the word in the title.",
-  },
-  {
-    slug: "data-scientist-vs-data-analyst",
-    title: "Data Scientist vs Data Analyst",
-    category: "Careers",
-    excerpt:
-      "Both live in spreadsheets and SQL — but one explains the past and the other predicts the future.",
-    date: "2026-05-26",
-    readingTime: 7,
-    author: "Sofia Lang",
-    authorRole: "Careers Editor",
-    intro: [
-      "These roles share tools and often share a desk, which makes the boundary fuzzy. The clearest split is the question each one is hired to answer.",
-    ],
-    a: {
-      name: "Data Analyst",
-      tagline: "Explains what happened, and why.",
-      pros: [
-        "Strong SQL, dashboards, and reporting",
-        "Fast, business-facing insights",
-        "Accessible entry point into data careers",
-      ],
-      bestFor: "People who like answering business questions with clear reports.",
-    },
-    b: {
-      name: "Data Scientist",
-      tagline: "Predicts what will happen next.",
-      pros: [
-        "Statistical modeling and machine learning",
-        "Programming depth in Python/R",
-        "Higher pay and research-leaning problems",
-      ],
-      bestFor: "People who enjoy modeling, experimentation, and prediction.",
-    },
-    dimensions: [
-      { aspect: "Core question", a: "What happened?", b: "What will happen?", edge: "tie" },
-      { aspect: "Main tools", a: "SQL, BI dashboards", b: "Python/R, ML libs", edge: "tie" },
-      { aspect: "Math depth", a: "Descriptive stats", b: "Modeling & ML", edge: "b" },
-      { aspect: "Entry barrier", a: "Lower", b: "Higher", edge: "a" },
-      { aspect: "Pay ceiling", a: "Solid", b: "Higher", edge: "b" },
-    ],
-    verdict:
-      "Start as an analyst if you love clear, business-facing answers and want a faster on-ramp. Aim for data scientist if you're drawn to modeling and prediction and don't mind the steeper math. Many scientists begin as analysts.",
-  },
-  {
-    slug: "ux-vs-ui-designer",
-    title: "UX vs UI Designer",
-    category: "Careers",
-    excerpt:
-      "One shapes how it works, the other how it looks. Why the best products need both — and how the roles differ.",
-    date: "2026-05-12",
-    readingTime: 6,
-    author: "Lena Voss",
-    authorRole: "Design & Creative",
-    intro: [
-      "UX and UI get lumped together so often that job posts ask for both. They're complementary, but they solve different problems.",
-    ],
-    a: {
-      name: "UX Designer",
-      tagline: "Designs how it works.",
-      pros: [
-        "Research, flows, and information architecture",
-        "Solves real user problems before pixels",
-        "Influences product strategy",
-      ],
-      bestFor: "People who love research, logic, and problem framing.",
-    },
-    b: {
-      name: "UI Designer",
-      tagline: "Designs how it looks and feels.",
-      pros: [
-        "Visual systems, typography, and components",
-        "Craft, polish, and brand expression",
-        "Tangible, beautiful deliverables",
-      ],
-      bestFor: "People who love visual craft and interface detail.",
-    },
-    dimensions: [
-      { aspect: "Focus", a: "Experience & flows", b: "Visual interface", edge: "tie" },
-      { aspect: "Deliverables", a: "Wireframes, journeys", b: "Mockups, design systems", edge: "tie" },
-      { aspect: "Key skill", a: "Research & logic", b: "Visual craft", edge: "tie" },
-      { aspect: "Tools", a: "Figma, research kits", b: "Figma, motion tools", edge: "tie" },
-      { aspect: "Mindset", a: "Problem-first", b: "Craft-first", edge: "tie" },
-    ],
-    verdict:
-      "UX makes a product usable; UI makes it desirable. If you love structure and research, lean UX. If you love pixels and polish, lean UI. The strongest designers can do both but specialize in one.",
   },
   {
     slug: "react-vs-vue",
@@ -529,50 +369,6 @@ const COMPARISONS: Comparison[] = [
       "Default to SQL when your data has clear relationships and integrity matters — which is most apps. Reach for NoSQL when you need flexible schemas or massive horizontal scale. Mixing both is common and fine.",
   },
   {
-    slug: "aws-vs-azure",
-    title: "AWS vs Azure",
-    category: "Software & Web",
-    excerpt:
-      "The cloud market's two giants. One has the deepest catalog; the other has the enterprise relationship.",
-    date: "2026-04-29",
-    readingTime: 9,
-    author: "Sam Okafor",
-    authorRole: "Web Engineering",
-    intro: [
-      "Choosing a cloud provider is a long-term commitment, and AWS and Azure are both more than capable. The decision usually comes down to your existing stack and team.",
-    ],
-    a: {
-      name: "AWS",
-      tagline: "The broadest, most mature cloud.",
-      pros: [
-        "Largest catalog of services and regions",
-        "Deep documentation and community",
-        "Mature, battle-tested primitives",
-      ],
-      bestFor: "Startups and teams that want maximum breadth and maturity.",
-    },
-    b: {
-      name: "Azure",
-      tagline: "The enterprise-integrated cloud.",
-      pros: [
-        "Seamless Microsoft and Windows integration",
-        "Strong enterprise agreements and identity",
-        "Hybrid-cloud and on-prem strengths",
-      ],
-      bestFor:
-        "Enterprises already invested in Microsoft tooling and identity.",
-    },
-    dimensions: [
-      { aspect: "Service breadth", a: "Widest", b: "Very broad", edge: "a" },
-      { aspect: "Enterprise fit", a: "Strong", b: "Strongest (MS stack)", edge: "b" },
-      { aspect: "Maturity", a: "Most mature", b: "Mature", edge: "a" },
-      { aspect: "Hybrid cloud", a: "Good", b: "Excellent", edge: "b" },
-      { aspect: "Learning resources", a: "Vast", b: "Plentiful", edge: "a" },
-    ],
-    verdict:
-      "Choose AWS for the broadest, most mature platform and the deepest community. Choose Azure if your organization already runs on Microsoft identity and tooling. Both will scale with you for years.",
-  },
-  {
     slug: "iphone-vs-android",
     title: "iPhone vs Android",
     category: "Gadgets",
@@ -615,50 +411,6 @@ const COMPARISONS: Comparison[] = [
     verdict:
       "Pick iPhone for seamless integration, long support, and resale value. Pick Android for choice, customization, and price flexibility. Your existing devices usually tip the balance.",
   },
-  {
-    slug: "macbook-vs-windows-laptop",
-    title: "MacBook vs Windows Laptop",
-    category: "Gadgets",
-    excerpt:
-      "Premium consistency versus boundless choice. Which laptop platform deserves your next few years of work?",
-    date: "2026-04-22",
-    readingTime: 8,
-    author: "Maya Brooks",
-    authorRole: "Consumer Tech",
-    intro: [
-      "A laptop is a multi-year commitment, and the MacBook-versus-Windows choice shapes your software, your budget, and your daily friction.",
-    ],
-    a: {
-      name: "MacBook",
-      tagline: "Consistent, efficient, premium.",
-      pros: [
-        "Outstanding battery life and silent efficiency",
-        "Excellent build, display, and trackpad",
-        "Polished, stable macOS experience",
-      ],
-      bestFor:
-        "Creatives and developers who want a refined, reliable machine.",
-    },
-    b: {
-      name: "Windows Laptop",
-      tagline: "Choice at every price and spec.",
-      pros: [
-        "Models from budget to workstation",
-        "Best for gaming and broad software support",
-        "Upgradable and touch/2-in-1 options",
-      ],
-      bestFor: "Gamers, value seekers, and Windows-only software users.",
-    },
-    dimensions: [
-      { aspect: "Build & display", a: "Premium, consistent", b: "Varies widely", edge: "a" },
-      { aspect: "Battery & efficiency", a: "Excellent", b: "Varies", edge: "a" },
-      { aspect: "Price range", a: "Premium only", b: "Budget to high-end", edge: "b" },
-      { aspect: "Gaming", a: "Limited", b: "Excellent", edge: "b" },
-      { aspect: "Software support", a: "Broad (some gaps)", b: "Widest", edge: "b" },
-    ],
-    verdict:
-      "Choose a MacBook for consistency, battery life, and build quality. Choose Windows for price flexibility, gaming, and the widest software support. Your required apps should make the final call.",
-  },
 ];
 
 /** Comparisons sorted newest-first. */
@@ -672,10 +424,6 @@ export function getComparisonBySlug(slug: string): Comparison | undefined {
 
 export function getAllSlugs(): string[] {
   return COMPARISONS.map((c) => c.slug);
-}
-
-export function getComparisonsByCategory(category: Category): Comparison[] {
-  return getAllComparisons().filter((c) => c.category === category);
 }
 
 /** Featured items for the homepage hero pair (falls back to newest). */

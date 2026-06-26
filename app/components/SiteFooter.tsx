@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { CATEGORY_META, categorySlug } from "@/app/lib/comparisons";
 
 const FOLLOW = ["Twitter", "Instagram", "YouTube", "LinkedIn"];
 
 export default function SiteFooter() {
   return (
     <footer className="border-t border-line">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-5 py-12 sm:px-8 md:grid-cols-4">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-5 py-12 sm:px-8 md:grid-cols-3">
         <div className="col-span-2 md:col-span-1">
           <Link href="/" className="flex items-center gap-2">
             <span className="flex h-5 w-5 items-center justify-center border border-line-strong text-[10px]">
@@ -20,22 +19,6 @@ export default function SiteFooter() {
             Honest, side-by-side comparisons that help you decide — the
             differences that actually matter.
           </p>
-        </div>
-
-        <div>
-          <h3 className="eyebrow text-ink-faint">Categories</h3>
-          <ul className="mt-4 space-y-2.5">
-            {CATEGORY_META.map((c) => (
-              <li key={c.name}>
-                <Link
-                  href={`/category/${categorySlug(c.name)}`}
-                  className="text-sm text-ink-soft transition-colors hover:text-ink"
-                >
-                  {c.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
         </div>
 
         <div>

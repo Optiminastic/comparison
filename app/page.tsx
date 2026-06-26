@@ -1,15 +1,9 @@
-import Link from "next/link";
 import TopNav from "@/app/components/TopNav";
 import ComparisonCard from "@/app/components/ComparisonCard";
 import Newsletter from "@/app/components/Newsletter";
 import SiteFooter from "@/app/components/SiteFooter";
 import LatestFromBlog from "@/app/components/LatestFromBlog";
-import {
-  CATEGORY_META,
-  categorySlug,
-  getAllComparisons,
-  getFeatured,
-} from "@/app/lib/comparisons";
+import { getAllComparisons, getFeatured } from "@/app/lib/comparisons";
 
 export const revalidate = 300;
 
@@ -26,30 +20,15 @@ export default function Home() {
         <LatestFromBlog />
         {/* Blog hero */}
         <section id="blog" className="pt-10 sm:pt-14">
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h1 className="font-display text-6xl font-bold tracking-tight text-ink sm:text-7xl">
-                Blog
-              </h1>
-              <p className="mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
-                Honest, side-by-side comparisons — from BMW vs Audi to Claude
-                Code vs Codex. The differences that actually matter, with a
-                clear verdict.
-              </p>
-            </div>
-
-            {/* Category pills */}
-            <div className="flex flex-wrap gap-2">
-              {CATEGORY_META.map((c) => (
-                <Link
-                  key={c.name}
-                  href={`/category/${categorySlug(c.name)}`}
-                  className="eyebrow border border-line px-3 py-1.5 text-ink-soft transition-colors hover:border-ink hover:text-ink"
-                >
-                  {c.name}
-                </Link>
-              ))}
-            </div>
+          <div>
+            <h1 className="font-display text-6xl font-bold tracking-tight text-ink sm:text-7xl">
+              Blog
+            </h1>
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
+              Honest, side-by-side comparisons — from BMW vs Audi to Claude
+              Code vs Codex. The differences that actually matter, with a
+              clear verdict.
+            </p>
           </div>
         </section>
 

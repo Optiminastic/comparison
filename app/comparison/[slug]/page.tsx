@@ -7,8 +7,6 @@ import SiteFooter from "@/app/components/SiteFooter";
 import ComparisonCard from "@/app/components/ComparisonCard";
 import VersusArt from "@/app/components/VersusArt";
 import {
-  categoryIcon,
-  categorySlug,
   formatDate,
   getAllComparisons,
   getAllSlugs,
@@ -74,7 +72,7 @@ export default async function ComparisonPage({
   if (!comparison) notFound();
 
   const related = getAllComparisons()
-    .filter((c) => c.category === comparison.category && c.slug !== comparison.slug)
+    .filter((c) => c.slug !== comparison.slug)
     .slice(0, 3);
 
   return (
@@ -93,13 +91,6 @@ export default async function ComparisonPage({
           {/* Header */}
           <header className="mt-6 border-b border-line pb-8">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <Link
-                href={`/category/${categorySlug(comparison.category)}`}
-                className="eyebrow inline-flex items-center gap-1.5 text-accent"
-              >
-                <span aria-hidden>{categoryIcon(comparison.category)}</span>
-                {comparison.category}
-              </Link>
               <span className="eyebrow text-ink-faint">
                 {formatDate(comparison.date)} · {comparison.readingTime} min read
               </span>
@@ -220,7 +211,7 @@ export default async function ComparisonPage({
         {related.length > 0 && (
           <section className="border-t border-line py-12">
             <h2 className="font-display text-2xl font-bold tracking-tight text-ink">
-              More in {comparison.category}
+              More comparisons
             </h2>
             <div className="mt-8 grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((c) => (
