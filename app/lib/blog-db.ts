@@ -1,7 +1,9 @@
-import { neon } from "@neondatabase/serverless";
+// Satellite blog data is served by Signalor's public blog API (which reads S3
+// under Signalor/<folder>/). Read-only here; no DB, no AWS SDK, no credentials.
 
-// Which satellite site this app represents (matches BlogPost.site in Signalor).
-const SITE = "comparison";
+const FOLDER = "comparison"; // satellite site key
+
+const API_BASE = process.env.NEXT_PUBLIC_BLOG_API_BASE ?? "https://staging.api.signalor.ai";
 
 export interface BlogRow {
   id: number;
@@ -15,43 +17,49 @@ export interface BlogRow {
   published_at: string | null;
 }
 
-function db() {
-  const url = process.env.BLOG_DATABASE_URL;
-  if (!url) throw new Error("BLOG_DATABASE_URL is not set");
-  return neon(url);
+function normalize(raw: Record<string, unknown>): BlogRow {
+  return {
+    id: Number(raw.id ?? 0),
+    slug: String(raw.slug ?? ""),
+    title: String(raw.title ?? ""),
+    description: String(raw.description ?? ""),
+    content_html: String(raw.content_html ?? ""),
+    image_url: String(raw.image_url ?? ""),
+    category: String(raw.category ?? FOLDER),
+    brand_url: String(raw.brand_url ?? ""),
+    published_at: (raw.published_at as string) ?? null,
+  };
 }
 
-/** Published posts for this site, newest first. Read-only; Signalor writes them. */
-export async function getPosts(): Promise<BlogRow[]> {
+async function fetchJson<T>(url: string): Promise<T | null> {
   try {
-    const sql = db();
-    const rows = await sql`
-      SELECT id, slug, title, description, content_html, image_url, category, brand_url, published_at
-      FROM analyzer_blogpost
-      WHERE site = ${SITE} AND status = 'published'
-      ORDER BY published_at DESC NULLS LAST, created_at DESC
-    `;
-    return rows as BlogRow[];
+    const res = await fetch(url, {
+      headers: { Accept: "application/json" },
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as T;
   } catch (e) {
-    console.error("[blog-db] getPosts failed:", e);
-    return [];
+    console.error("[blog-db] fetch failed:", url, e);
+    return null;
   }
+}
+
+/** Published posts for this site, newest first (from Signalor's blog API). */
+export async function getPosts(): Promise<BlogRow[]> {
+  const raw = await fetchJson<Record<string, unknown>[]>(
+    `${API_BASE}/api/analyzer/public/blog/${FOLDER}/`,
+  );
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((r) => (r.status ?? "published") === "published").map(normalize);
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogRow | null> {
-  try {
-    const sql = db();
-    const rows = await sql`
-      SELECT id, slug, title, description, content_html, image_url, category, brand_url, published_at
-      FROM analyzer_blogpost
-      WHERE site = ${SITE} AND slug = ${slug} AND status = 'published'
-      LIMIT 1
-    `;
-    return (rows[0] as BlogRow) ?? null;
-  } catch (e) {
-    console.error("[blog-db] getPostBySlug failed:", e);
-    return null;
-  }
+  const raw = await fetchJson<Record<string, unknown>>(
+    `${API_BASE}/api/analyzer/public/blog/${FOLDER}/${encodeURIComponent(slug)}/`,
+  );
+  if (!raw || (raw.status && raw.status !== "published")) return null;
+  return normalize(raw);
 }
 
 export function formatDate(iso: string | null): string {

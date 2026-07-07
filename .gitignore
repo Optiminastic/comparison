@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# enforce pnpm — keep npm/yarn lockfiles out so they can't shadow pnpm-lock.yaml
+package-lock.json
+npm-shrinkwrap.json
+yarn.lock
