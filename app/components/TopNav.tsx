@@ -7,11 +7,12 @@ export default function TopNav() {
     <header className="border-b border-line">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
         <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-5 w-5 items-center justify-center border border-line-strong text-[10px]">
-            ▢
-          </span>
+          <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true" className="shrink-0">
+            <path d="M4 5 H14 V27 H4 Z" fill="#1b1a17" />
+            <path d="M18 5 H28 V27 H18 Z" fill="#b15b3c" />
+          </svg>
           <span className="font-display text-lg font-bold uppercase tracking-tight text-ink">
-            Versus
+            Better Versus
           </span>
         </Link>
 

@@ -1,8 +1,7 @@
-import type { Comparison } from "@/app/lib/comparisons";
-
-// Deterministic, generative cover art for a comparison: a split panel with each
-// side's short label and a "VS" badge between them. Muted editorial palette,
-// seeded per slug — zero external image dependencies.
+// Deterministic, generative cover art for the comparison network: a split panel
+// seeded per slug. For a real A-vs-B comparison it shows each side's short label
+// and a "VS" badge; for a plain post (no sides) it renders the same split as a
+// clean, label-less cover. Muted editorial palette, zero external images.
 
 const PALETTES: { a: string; b: string; aInk: string; bInk: string }[] = [
   { a: "#c9bba6", b: "#7d7468", aInk: "#3a342a", bInk: "#f3f0e8" },
@@ -45,15 +44,21 @@ function shortLabel(name: string): string {
 }
 
 export default function VersusArt({
-  comparison,
+  slug,
+  a,
+  b,
   className = "",
 }: {
-  comparison: Comparison;
+  slug: string;
+  /** Side labels — present for comparisons, omitted for plain posts. */
+  a?: string;
+  b?: string;
   className?: string;
 }) {
-  const rand = seeded(comparison.slug);
+  const rand = seeded(slug);
   const palette = PALETTES[Math.floor(rand() * PALETTES.length)];
   const skew = 12 + Math.floor(rand() * 16); // diagonal offset for the split
+  const versus = Boolean(a && b);
 
   return (
     <svg
@@ -61,7 +66,7 @@ export default function VersusArt({
       className={className}
       preserveAspectRatio="xMidYMid slice"
       role="img"
-      aria-label={`${comparison.a.name} versus ${comparison.b.name} cover artwork`}
+      aria-label={versus ? `${a} versus ${b} cover artwork` : "Cover artwork"}
     >
       {/* Side A */}
       <polygon points={`0,0 ${200 + skew},0 ${200 - skew},300 0,300`} fill={palette.a} />
@@ -80,45 +85,48 @@ export default function VersusArt({
         )}
       </g>
 
-      {/* Labels */}
-      <text
-        x="92"
-        y="160"
-        textAnchor="middle"
-        fontFamily="var(--font-archivo), Helvetica, sans-serif"
-        fontSize="30"
-        fontWeight="700"
-        fill={palette.aInk}
-      >
-        {shortLabel(comparison.a.name)}
-      </text>
-      <text
-        x="312"
-        y="160"
-        textAnchor="middle"
-        fontFamily="var(--font-archivo), Helvetica, sans-serif"
-        fontSize="30"
-        fontWeight="700"
-        fill={palette.bInk}
-      >
-        {shortLabel(comparison.b.name)}
-      </text>
+      {/* Labels + VS badge — only for real A-vs-B comparisons */}
+      {versus && (
+        <>
+          <text
+            x="92"
+            y="160"
+            textAnchor="middle"
+            fontFamily="var(--font-archivo), Helvetica, sans-serif"
+            fontSize="30"
+            fontWeight="700"
+            fill={palette.aInk}
+          >
+            {shortLabel(a!)}
+          </text>
+          <text
+            x="312"
+            y="160"
+            textAnchor="middle"
+            fontFamily="var(--font-archivo), Helvetica, sans-serif"
+            fontSize="30"
+            fontWeight="700"
+            fill={palette.bInk}
+          >
+            {shortLabel(b!)}
+          </text>
 
-      {/* VS badge */}
-      <circle cx="200" cy="150" r="30" fill="#1b1a17" />
-      <text
-        x="200"
-        y="151"
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontFamily="var(--font-archivo), Helvetica, sans-serif"
-        fontSize="20"
-        fontWeight="800"
-        fontStyle="italic"
-        fill="#f3f0e8"
-      >
-        VS
-      </text>
+          <circle cx="200" cy="150" r="30" fill="#1b1a17" />
+          <text
+            x="200"
+            y="151"
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontFamily="var(--font-archivo), Helvetica, sans-serif"
+            fontSize="20"
+            fontWeight="800"
+            fontStyle="italic"
+            fill="#f3f0e8"
+          >
+            VS
+          </text>
+        </>
+      )}
     </svg>
   );
 }

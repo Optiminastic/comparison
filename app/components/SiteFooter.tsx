@@ -12,7 +12,7 @@ export default function SiteFooter() {
               ▢
             </span>
             <span className="font-display text-lg font-bold uppercase tracking-tight text-ink">
-              Versus
+              Better Versus
             </span>
           </Link>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink-soft">
@@ -22,7 +22,7 @@ export default function SiteFooter() {
         </div>
 
         <div>
-          <h3 className="eyebrow text-ink-faint">Versus</h3>
+          <h3 className="eyebrow text-ink-faint">Better Versus</h3>
           <ul className="mt-4 space-y-2.5">
             {["About", "How we compare", "Suggest a matchup", "Contact"].map(
               (link) => (
@@ -58,7 +58,7 @@ export default function SiteFooter() {
 
       <div className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-5 text-ink-faint sm:flex-row sm:items-center sm:justify-between sm:px-8">
-          <span className="eyebrow">© 2026 Versus. All rights reserved.</span>
+          <span className="eyebrow">© 2026 Better Versus. All rights reserved.</span>
           <span className="eyebrow flex gap-5">
             <Link href="/" className="transition-colors hover:text-ink">Privacy</Link>
             <Link href="/" className="transition-colors hover:text-ink">Terms</Link>

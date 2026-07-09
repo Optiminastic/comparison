@@ -1,23 +1,47 @@
 import TopNav from "@/app/components/TopNav";
 import ComparisonCard from "@/app/components/ComparisonCard";
+import FeedCard from "@/app/components/FeedCard";
 import Newsletter from "@/app/components/Newsletter";
 import SiteFooter from "@/app/components/SiteFooter";
-import LatestFromBlog from "@/app/components/LatestFromBlog";
-import { getAllComparisons, getFeatured } from "@/app/lib/comparisons";
+import JsonLd from "@/app/components/JsonLd";
+import { getFeatured } from "@/app/lib/comparisons";
+import { getFeedItems } from "@/app/lib/feed";
+import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/app/lib/seo";
 
 export const revalidate = 300;
 
-export default function Home() {
+export default async function Home() {
   const featured = getFeatured(2);
   const featuredSlugs = new Set(featured.map((c) => c.slug));
-  const rest = getAllComparisons().filter((c) => !featuredSlugs.has(c.slug));
+  const gridItems = (await getFeedItems()).filter((it) => !featuredSlugs.has(it.slug));
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        name: SITE_NAME,
+        description: SITE_TAGLINE,
+        url: SITE_URL,
+        publisher: { "@id": `${SITE_URL}/#organization` },
+      },
+      {
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#organization`,
+        name: SITE_NAME,
+        url: SITE_URL,
+        logo: { "@type": "ImageObject", url: `${SITE_URL}/icon.svg` },
+      },
+    ],
+  };
 
   return (
     <>
+      <JsonLd data={jsonLd} />
       <TopNav />
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-5 sm:px-8">
-        <LatestFromBlog />
         {/* Blog hero */}
         <section id="blog" className="pt-10 sm:pt-14">
           <div>
@@ -45,10 +69,10 @@ export default function Home() {
 
         <hr className="border-line" />
 
-        {/* Grid of the rest */}
+        {/* Grid — remaining comparisons + published posts, newest first */}
         <section className="grid grid-cols-1 gap-x-8 gap-y-10 py-12 sm:grid-cols-2 lg:grid-cols-3">
-          {rest.map((c) => (
-            <ComparisonCard key={c.slug} comparison={c} />
+          {gridItems.map((item) => (
+            <FeedCard key={`${item.kind}-${item.slug}`} item={item} />
           ))}
         </section>
 

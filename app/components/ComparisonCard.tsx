@@ -22,7 +22,9 @@ export default function ComparisonCard({
           }`}
         >
           <VersusArt
-            comparison={comparison}
+            slug={comparison.slug}
+            a={comparison.a.name}
+            b={comparison.b.name}
             className="h-full w-full transition-transform duration-500 ease-out group-hover:scale-[1.03]"
           />
         </div>

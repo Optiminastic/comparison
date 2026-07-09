@@ -3,7 +3,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import TopNav from "@/app/components/TopNav";
 import SiteFooter from "@/app/components/SiteFooter";
+import JsonLd from "@/app/components/JsonLd";
 import { getPosts, getPostBySlug, formatDate } from "@/app/lib/blog-db";
+import {
+  OG_IMAGE,
+  SITE_NAME,
+  SITE_URL,
+  stripHtml,
+  truncate,
+} from "@/app/lib/seo";
 
 export const revalidate = 300;
 
@@ -19,16 +27,67 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
-  if (!post) return { title: "Not found" };
-  return { title: post.title, description: post.description };
+  if (!post) return { title: "Not found", robots: { index: false } };
+
+  const description = truncate(
+    post.description || stripHtml(post.content_html),
+  );
+  const url = `/${post.slug}`;
+  const images = post.image_url
+    ? [{ url: post.image_url, alt: post.title }]
+    : [OG_IMAGE];
+
+  return {
+    title: post.title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "article",
+      url,
+      siteName: SITE_NAME,
+      title: post.title,
+      description,
+      publishedTime: post.published_at ?? undefined,
+      images,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
+      images: images.map((i) => i.url),
+    },
+  };
 }
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) notFound();
+
+  const url = `${SITE_URL}/${post.slug}`;
+  const description = truncate(post.description || stripHtml(post.content_html));
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description,
+    ...(post.image_url ? { image: post.image_url } : {}),
+    ...(post.published_at
+      ? { datePublished: post.published_at, dateModified: post.published_at }
+      : {}),
+    author: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      logo: { "@type": "ImageObject", url: `${SITE_URL}/icon.svg` },
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    url,
+  };
+
   return (
     <>
+      <JsonLd data={jsonLd} />
       <TopNav />
       <main className="mx-auto w-full max-w-3xl flex-1 px-5 sm:px-8">
         <article className="pb-20 pt-10 sm:pt-14">

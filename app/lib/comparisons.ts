@@ -1,4 +1,4 @@
-// Data layer for Versus — the side-by-side comparison journal.
+// Data layer for Better Versus — the side-by-side comparison journal.
 // Single source of truth for comparison blog posts. Presentation components
 // depend on these types, never the other way around.
 

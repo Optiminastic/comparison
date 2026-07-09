@@ -6,6 +6,7 @@ import Newsletter from "@/app/components/Newsletter";
 import SiteFooter from "@/app/components/SiteFooter";
 import ComparisonCard from "@/app/components/ComparisonCard";
 import VersusArt from "@/app/components/VersusArt";
+import JsonLd from "@/app/components/JsonLd";
 import {
   formatDate,
   getAllComparisons,
@@ -13,6 +14,7 @@ import {
   getComparisonBySlug,
   type Side,
 } from "@/app/lib/comparisons";
+import { OG_IMAGE, SITE_NAME, SITE_URL, truncate } from "@/app/lib/seo";
 
 // Pre-render every comparison at build time.
 export function generateStaticParams() {
@@ -26,8 +28,32 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const c = getComparisonBySlug(slug);
-  if (!c) return { title: "Not found — Versus" };
-  return { title: `${c.title} — Versus`, description: c.excerpt };
+  if (!c) return { title: "Not found", robots: { index: false } };
+
+  const description = truncate(c.excerpt);
+  const url = `/comparison/${c.slug}`;
+
+  return {
+    title: c.title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "article",
+      url,
+      siteName: SITE_NAME,
+      title: c.title,
+      description,
+      publishedTime: c.date,
+      authors: [c.author],
+      images: [{ ...OG_IMAGE, alt: `${c.a.name} vs ${c.b.name} — ${SITE_NAME}` }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: c.title,
+      description,
+      images: [OG_IMAGE.url],
+    },
+  };
 }
 
 function SideCard({ side, accent }: { side: Side; accent: "a" | "b" }) {
@@ -75,8 +101,28 @@ export default async function ComparisonPage({
     .filter((c) => c.slug !== comparison.slug)
     .slice(0, 3);
 
+  const url = `${SITE_URL}/comparison/${comparison.slug}`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: comparison.title,
+    description: truncate(comparison.excerpt),
+    image: `${SITE_URL}${OG_IMAGE.url}`,
+    datePublished: comparison.date,
+    dateModified: comparison.date,
+    author: { "@type": "Person", name: comparison.author },
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      logo: { "@type": "ImageObject", url: `${SITE_URL}/icon.svg` },
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    url,
+  };
+
   return (
     <>
+      <JsonLd data={jsonLd} />
       <TopNav />
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-5 sm:px-8">
@@ -107,7 +153,12 @@ export default async function ComparisonPage({
 
           {/* Cover */}
           <div className="mt-8 overflow-hidden">
-            <VersusArt comparison={comparison} className="aspect-[16/7] w-full" />
+            <VersusArt
+              slug={comparison.slug}
+              a={comparison.a.name}
+              b={comparison.b.name}
+              className="aspect-[16/7] w-full"
+            />
           </div>
 
           {/* Intro */}
