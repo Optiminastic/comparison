@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Archivo, Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { OG_IMAGE, SITE_NAME, SITE_URL } from "@/app/lib/seo";
@@ -83,6 +84,17 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-paper text-ink">
         {children}
         <Analytics />
+        {/* Google Analytics (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-22P0R9Y8LC"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-22P0R9Y8LC');`}
+        </Script>
       </body>
     </html>
   );
